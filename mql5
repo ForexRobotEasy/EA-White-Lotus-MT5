@@ -1,0 +1,72 @@
+mql5
+//+------------------------------------------------------------------+
+//|                                  EA White Lotus MT5               |
+//|                     Developed by Forex Robot Easy Team            |
+//|                     Website: forexroboteasy.com                   |
+//+------------------------------------------------------------------+
+
+// Include necessary libraries and define global variables
+#include <Trade\Trade.mqh>
+#include <NeuralNetworks.mqh>
+
+input int maxDeals = 3; // Max number of deals in one series
+input bool reverseWithoutLoss = true; // Enable reverse without loss function
+
+//+------------------------------------------------------------------+
+//|                             Expert Advisor                        |
+//+------------------------------------------------------------------+
+void OnTick()
+{
+   // Check if there are open positions
+   if (PositionsTotal() == 0)
+   {
+      // Call the neural network function to determine price direction
+      bool isPriceUp = DeterminePriceDirection();
+
+      // Open new positions based on the determined price direction
+      if (isPriceUp)
+      {
+         OpenPositions(1, ORDER_TYPE_BUY);
+      }
+      else
+      {
+         OpenPositions(1, ORDER_TYPE_SELL);
+      }
+   }
+}
+
+//+------------------------------------------------------------------+
+//|                     Function to Open Positions                    |
+//+------------------------------------------------------------------+
+void OpenPositions(int numPositions, ENUM_ORDER_TYPE orderType)
+{
+   double lotSize = AccountFreeMargin() / 10000; // Calculate lot size based on free margin
+   double stopLoss = 50; // Set stop loss at 50 pips
+   double takeProfit = 100; // Set take profit at 100 pips
+
+   for (int i = 0; i < numPositions; i++)
+   {
+      // Open position with specified parameters
+      Trade.PositionOpen(Symbol(), orderType, lotSize, 0, stopLoss, takeProfit);
+   }
+}
+
+//+------------------------------------------------------------------+
+//|              Function to Determine Price Direction                |
+//+------------------------------------------------------------------+
+bool DeterminePriceDirection()
+{
+   // Call the neural network function to determine short-term price direction
+   bool isPriceUp = NeuralNetworks.DeterminePriceDirection();
+
+   return isPriceUp;
+}
+
+//+------------------------------------------------------------------+
+//|                   Reverse Without Loss Function                   |
+//+------------------------------------------------------------------+
+void ReverseWithoutLoss()
+{
+   // Code implementation for reverse without loss function
+}
+
